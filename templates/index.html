@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}Forum{% endblock %}
+
+{% block body %}
+
+<div class="row pad">
+    <div class="cxs-sm-12">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-xs-10">
+                        <h1 class="threads">Threads</h1>
+                    </div>
+                    <div class="col-xs-2 text-right">
+                        {% if current_user.active %}
+                        <a href="#newModal" data-toggle="modal" class="btn btn-primary" title="Add Thread">
+                            <i class="glyphicon glyphicon-plus-sign"></i> Add Thread
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% for thread in threads %}
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-xs-10">
+                        <h2 class="thread-title">{{ thread.title }}</h2>
+                        <p class="thread-description">{{ thread.description }}</p>
+                        <div class="thread-details">
+                            <p class="created">
+                                <span>Created At: </span>
+                                {{ thread.date_created.strftime('%d %B, %Y')}}
+                            </p>
+                            <div class="seperator">|</div>
+                            <p class="created"><span>Created by: </span>{{ thread.user.username }}</p>
+                        </div>
+                        <div class="replies-wrapper">
+                            <div class="new-reply">
+                                <form class="reply-form" method="POST" role="form" id="reply_form">
+                                    {{ reply_form.csrf_token }}
+                                    <div class="form-group">
+                                        {{ reply_form.message(class="form-control", rows="5",
+                                        placeholder="Post Reply") }}
+                                    </div>
+                                    <a href="/reply/{{ thread.id }}">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="glyphicon glyphicon-save"></i> Reply
+                                        </button> &nbsp;
+                                    </a>
+                                </form>
+                            </div>
+
+                            <div class="replies">
+                                {% for reply in thread.get_replies() %}
+                                <p class="">{{ reply.message }}</p>
+                                <i class="glyphicon glyphicon-calendar"></i>
+                                <p class="">{{ reply.date_created.strftime("%d %B, %Y") }}</p>
+                                <i class="glyphicon glyphicon-user"></i>
+                                <p class="">{{ reply.user.username }}</p>
+                                {% endfor %}
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-2 text-right">
+                        <a href="{{ url_for('delete_thread', id=thread.id) }}" class="btn btn-danger" }}>
+                            <i class="glyphicon glyphicon-remove"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="newModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Add Thread</h4>
+            </div>
+            <div class="modal-body">
+                <form action="" method="POST" role="form">
+                    {{ thread_form.csrf_token }}
+                    <div class="form-group">
+                        <label for="name">Thread Name</label>
+                        {{ thread_form.title(class="form-control", placeholder="Title") }}
+                    </div>
+                    <div class="form-group">
+                        <label for="name">Thread Description</label>
+                        {{ thread_form.description(class="form-control", placeholder="Description") }}
+                    </div>
+
+
+
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
